@@ -55,7 +55,8 @@ const LOVE=()=>S.mode=='love';
 function costOf(k){const d=S.grid.filter(x=>x=='dc').length;let c=T[k].cost;if(PLANTS.includes(k))c*=LOVE()?Math.max(0.4,1-0.15*d):Math.min(1.6,1+0.1*d);return c}
 let S={cash:150,yr:2027,anger:10,grid:Array(144).fill(null),tool:'res',mode:'love'};
 const $=id=>document.getElementById(id);
-const log=(m,bad)=>{const d=document.createElement('div');d.textContent=`[${S.yr}] ${m}`;if(bad)d.className='bad';$('log').prepend(d);$('ticker').textContent=m;$('ticker').className=bad?'bad':''};
+const NAME=m=>LOVE()?m.replace(/data centers/g,'compute campuses').replace(/Data centers/g,'Compute campuses').replace(/data center/g,'compute campus').replace(/Data center/g,'Compute campus'):m;
+const log=(m,bad)=>{m=NAME(m);const d=document.createElement('div');d.textContent=`[${S.yr}] ${m}`;if(bad)d.className='bad';$('log').prepend(d);$('ticker').textContent=m;$('ticker').className=bad?'bad':''};
 function totals(){let t={tax:0,pop:0,pw:0,wt:0,dc:0,smog:0,calm:0,jobs:0,warm:0};
  S.grid.forEach(k=>{if(!k)return;const x=T[k];t.tax+=x.tax;t.pop+=x.pop;t.pw+=x.pw;t.wt+=x.wt;t.smog+=x.smog||0;t.calm+=x.calm||0;t.jobs+=x.jobs||0;if(k=='dc')t.dc++});
  S.grid.forEach((k,i)=>{if(k=='res'&&nb(i).some(j=>S.grid[j]=='dc'))t.warm++});
@@ -68,7 +69,7 @@ function render(){const t=totals();$('cash').textContent=S.cash.toFixed(0);$('ta
  $('pw').textContent=t.pw;$('pw').className=t.pw<0?'bad':'';$('wt').textContent=t.wt;$('wt').className=t.wt<0?'bad':'';
  $('bill').textContent='$'+bill(t)+'/mo';$('yr').textContent=S.yr;const need=Math.max(1,t.pop/120*0.4);$('sch').textContent=t.pop?Math.min(100,Math.round(t.tax/need*25))+'%':'no kids yet';$('anger').style.width=Math.min(100,S.anger)+'%';
  S.grid.forEach((k,i)=>{const c=$('grid').children[i];c.textContent=k?T[k].e:'';c.style.background=k?T[k].col:'#3b5d3a'});
- [...$('tools').children].forEach(b=>{b.classList.toggle('on',b.dataset.k==S.tool);const c=T[b.dataset.k].cost;if(c)b.textContent=b.dataset.label+' $'+costOf(b.dataset.k).toFixed(0)+'M'})}
+ [...$('tools').children].forEach(b=>{b.classList.toggle('on',b.dataset.k==S.tool);const c=T[b.dataset.k].cost;if(c)b.textContent=NAME(b.dataset.label)+' $'+costOf(b.dataset.k).toFixed(0)+'M'})}
 Object.entries(T).forEach(([k,x])=>{const b=document.createElement('button');b.dataset.k=k;b.style.background=x.col||'#ccc';
  b.textContent=`${x.e} ${x.n}${x.cost?' $'+x.cost+'M':''}`;b.dataset.label=x.e+' '+x.n;b.onclick=()=>{S.tool=k;render()};$('tools').append(b)});
 for(let i=0;i<144;i++){const c=document.createElement('div');c.className='c';c.onclick=()=>place(i);$('grid').append(c)}
